@@ -1,4 +1,4 @@
-return function(self, oFile)
+local intializeLogger = function (self, oFile)
 	self.logger						= {}
 	self.logger['version'] 			= "0.1.0"
 	self.logger['level'] 				= "trace"
@@ -101,3 +101,5 @@ return function(self, oFile)
 	fp:write('')
 	fp:close()
 end
+
+_G.InitializeLogger = intializeLogger
