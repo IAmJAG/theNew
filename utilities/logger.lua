@@ -11,7 +11,7 @@ local intializeLogger = function (self, oFile)
 			
 	local LOGMODES = {
 			{CODE = 1, NAME = "trace", COLOR = "\27[34m", On = true}
-		,	{CODE = 2, NAME = "Debug", COLOR = "\27[36m", On = true}
+		,	{CODE = 2, NAME = "debug", COLOR = "\27[36m", On = true}
 		,	{CODE = 3, NAME = "info",  COLOR = "\27[32m", On = true}
 		,	{CODE = 4, NAME = "warn",  COLOR = "\27[33m", On = true}
 		,	{CODE = 5, NAME = "error", COLOR = "\27[31m", On = true}
@@ -26,7 +26,7 @@ local intializeLogger = function (self, oFile)
 	local serialize = function(o)
 		local so = tostring(o)
 		if typeOf(o) == "function" then
-				local info = debug.getinfo(o, "S")
+				local info = __jAGDebug.getinfo(o, "S")
 				-- info.name is nil because o is not a calling level
 				if info.what == "C" then
 						return string.format("%q", so .. ", C function")
@@ -47,6 +47,9 @@ local intializeLogger = function (self, oFile)
 				return string.format("%q", so)
 		end
 	end
+	
+	__jAGError = error
+	__jAGDebug = debug
 			
 	for i, x in ipairs(LOGMODES) do
 		local nameupper = x.NAME:upper()
@@ -62,7 +65,7 @@ local intializeLogger = function (self, oFile)
 			-- for _, m in ipairs(...) do
 				-- msg = msg .. ' ' .. tostring(m)
 			-- end
-			local info = debug.getinfo(2, "Sl")
+			local info = __jAGDebug.getinfo(2, "Sl")
 			local lineinfo = string.gsub(info.source, scriptPath(), "") .. ":" .. info.currentline							
 			logger:__write(msg, nameupper, lineinfo)
 		end
