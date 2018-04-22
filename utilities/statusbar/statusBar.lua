@@ -1,29 +1,35 @@
 --=============== Status Bar
-local statusBar = require('base')
+local statusBar = {}
+statusBar.__index = statusBar
+
+require('base')
 
 if SCR == nil then
 	SCR = getAppUsableScreenSize()
 end
 
 function statusBar.create(x, y, w, h)
-	local bar = statusBar:new('statusBar', true)
+	local bar = newClass('statusBar', true)
 	
-	bar.x 			 	= x or 0
-	bar.y 			 	= y or 0
-	bar.w 			 	= w or SCR:getW()
-	bar.h 			 	= h or SCR:getH()
-								
-	bar.barColor 	= gray
-	bar.bar			 	= Region(bar.x, bar.y, bar.w, bar.h)
-	bar.sections	= {}
+	bar.x 			 			= x or 0
+	bar.y 			 			= y or 0
+	bar.w 			 			= w or SCR:getX()
+	bar.h 			 			= h or SCR:getY()
 	
-	return bar
+	bar.borderColor 	= 0xFF464742
+	bar.background		= 0xFF464742
+	bar.textColor			= 0xFF464742
+	bar.bar			 			= Region(bar.x, bar.y, bar.w, bar.h)
+	bar.sections			= {}
+	
+	return setmetatable(bar, statusBar)
 end
 
 function statusBar:show()
 	self.bar = self.bar or Region(self.x, self.y, self.w, self.h)
-	setHighlightStyle(self.barColor, false)
-	self.bar:highlight()
+	setHighlightTextStyle(self.background, self.textColor, 16)
+	setHighlightStyle(self.borderColor, false)
+	self.bar:highlight('')
 	for i, sec in pairs(self.sections) do
 		sec:show(self)
 	end
@@ -37,12 +43,13 @@ function statusBar:hide()
 end
 
 function statusBar:addSection(sectionTyp, x, y, w, h)
-	x 	= x or self.x
-	y 	= y or self.y
-	w 	= w or self.w
-	h 	= h or self.h	
+	x 	= x or self.x+2
+	y 	= y or self.y+2
+	w 	= w or self.w-2
+	h 	= h or self.h-2
 	local newSection = require(sectionTyp).create(x, y, w, h)	
 	self.sections[#self.sections+1] = newSection
+	return newSection
 end
 
 

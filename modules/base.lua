@@ -1,33 +1,34 @@
-local baseMeta = {}
-baseMeta.__index = baseMeta
-
-function baseMeta:new(typ, global)
+function newClass(typ, global)
+	local baseMeta = {}
+	baseMeta.__index = baseMeta
+	
+	
 	local base = {}
-	setmetatable(base, self)
+	
 	assert(typ~=nil, "Type is required")
-	assert(typeOf(typ)=='string', "Enter string in type")
+	assert(typeOf(typ)=='string', "Enter string in type")	
+	
 	base.Type 		= typ:lower()
 	base.isGlobal = global or false
-	base:addType()
-	return base
-end
-
-function baseMeta:typeOf()
-	return typeOf(self)
+	
+	
+	addType(base)
+	
+	return setmetatable(base, baseMeta)
 end
 
 __jAGRequire = require
 
-function baseMeta:addType()
+function addType(obj)
 	if _G['jAGTypes'] == nil then
 		_G['jAGTypes'] = {}
 	end
 	
-	local utyp = self.Type:upper()	
-	local ltyp = self.Type:lower()
+	local utyp = obj.Type:upper()	
+	local ltyp = obj.Type:lower()
 	_G['req' .. utyp] = function()
 		local req = nil
-		if self.isGlobal then
+		if obj.isGlobal then
 			if _G[utyp] == nil then
 				_G[utyp] = __jAGRequire(ltyp)
 			end
@@ -39,6 +40,12 @@ function baseMeta:addType()
 	end
 	
 	jAGTypes[utyp] = ltyp
+	
+	obj.typeOf = function(self)
+		return typeOf(self)
+	end
+	
+	return obj 
 end
 
 __jAGTypeOf = typeOf
@@ -60,5 +67,3 @@ function require(moduleName)
 	local reqo = _G['req' .. moduleName:upper()] or __jAGRequire(moduleName:lower())	
 	return reqo
 end
-
-return baseMeta
