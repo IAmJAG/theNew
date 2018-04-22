@@ -1,5 +1,5 @@
 --=============== Status Bar
-local statusBar = require('base')
+local statusBar = require('base'):create('statusBar')
 
 if SCR == nil then
 	SCR = getAppUsableScreenSize()
