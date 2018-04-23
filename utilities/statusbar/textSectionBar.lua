@@ -1,4 +1,37 @@
 --=============== Status Bar Text Content
+textSectionBar = class('textSection')
+
+if SCR == nil then
+	SCR = getAppUsableScreenSize()
+end
+
+statusBar.x 			 			= 0
+statusBar.y 			 			= SCR:getY() - 60
+statusBar.w 			 			= SCR:getX()
+statusBar.h 			 			= SCR:getY()
+
+statusBar.borderColor 	= 0xFF464742
+statusBar.background		= 0xFF464742
+statusBar.textColor			= 0xFF464742
+statusBar.bar			 			= Region(statusBar.x, statusBar.y, statusBar.w, statusBar.h)
+statusBar.sections			= {}
+
+function statusBar:show()
+	setHighlightTextStyle(self.background, self.textColor, 16)
+	setHighlightStyle(self.borderColor, false)
+	self.bar:highlight('')
+	for i, sec in pairs(self.sections) do
+		sec:show(self)
+	end
+end
+
+function statusBar:hide()
+	for i, sec in pairs(self.sections) do
+		sec:hide()
+	end
+	self.bar:highlightOff()
+end
+
 local textSectionBar = {}
 textSectionBar.__index = textSectionBar
 

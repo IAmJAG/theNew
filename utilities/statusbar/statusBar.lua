@@ -1,32 +1,22 @@
---=============== Status Bar
-local statusBar = {}
-statusBar.__index = statusBar
-
-require('base')
+--=============== Status Bar ===============--
+statusBar = class('rectangle')
 
 if SCR == nil then
 	SCR = getAppUsableScreenSize()
 end
 
-function statusBar.create(x, y, w, h)
-	local bar = newClass('statusBar', true)
-	
-	bar.x 			 			= x or 0
-	bar.y 			 			= y or 0
-	bar.w 			 			= w or SCR:getX()
-	bar.h 			 			= h or SCR:getY()
-	
-	bar.borderColor 	= 0xFF464742
-	bar.background		= 0xFF464742
-	bar.textColor			= 0xFF464742
-	bar.bar			 			= Region(bar.x, bar.y, bar.w, bar.h)
-	bar.sections			= {}
-	
-	return setmetatable(bar, statusBar)
-end
+statusBar.x 			 			= 0
+statusBar.y 			 			= SCR:getY() - 60
+statusBar.w 			 			= SCR:getX()
+statusBar.h 			 			= SCR:getY()
+
+statusBar.borderColor 	= 0xFF464742
+statusBar.background		= 0xFF464742
+statusBar.textColor			= 0xFF464742
+statusBar.bar			 			= Region(statusBar.x, statusBar.y, statusBar.w, statusBar.h)
+statusBar.sections			= {}
 
 function statusBar:show()
-	self.bar = self.bar or Region(self.x, self.y, self.w, self.h)
 	setHighlightTextStyle(self.background, self.textColor, 16)
 	setHighlightStyle(self.borderColor, false)
 	self.bar:highlight('')
@@ -42,12 +32,14 @@ function statusBar:hide()
 	self.bar:highlightOff()
 end
 
-function statusBar:addSection(sectionTyp, x, y, w, h)
+function statusBar:addSection(sctnClss, name, w, h)
 	x 	= x or self.x+2
 	y 	= y or self.y+2
 	w 	= w or self.w-2
 	h 	= h or self.h-2
-	local newSection = require(sectionTyp).create(x, y, w, h)	
+	local newSection = sctnClss(name)
+	newSection.w = w
+	newSection.h = h
 	self.sections[#self.sections+1] = newSection
 	return newSection
 end
@@ -73,5 +65,3 @@ colors = {
 	--
 	transparent = 0x00FFFFFF;
 }
-
-return statusBar
