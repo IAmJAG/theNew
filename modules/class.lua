@@ -1,6 +1,46 @@
 --======== CLASS ==========--
-if trace == nil then
-	trace = function(...) print(...) end
+
+local encode = function(self)	
+	local base = getmetatable(self)
+	local _data = rawget(base, '_data')
+	_data.type = self:typeOf()
+	return self.json:encode_pretty(_data)
+end
+
+local toJAGClass = function(self)
+	local cls = _G[self.type]()
+	local base = getmetatable(cls)
+	self.type = nil
+	
+	for key, itm in pairs(self) do
+		print(key)
+		if type(self[key]) == 'table' then
+			if self[key]['type'] ~= nil then
+				self[key] = toJAGClass(self[key])
+			end
+		end
+	end
+	
+	rawset(base, '_data', self)	
+	return cls 
+end
+
+local decode = function(self, strJSON)	
+	local _data = self.json:decode(strJSON)	
+	assert(_data.type == self.typeOf(), 'Invalid type!')
+	_data.type = nil
+	
+	for key, itm in pairs(_data) do
+
+		if type(_data[key]) == 'table' then
+			if _data[key]['type'] ~= nil then
+				_data[key] = toJAGClass(_data[key])
+			end
+		end
+	end
+	
+	local base = getmetatable(self)
+	rawset(base, '_data', _data)
 end
 
 local baseIndex =  function(tbl, key)
@@ -30,9 +70,7 @@ end
 
 local baseNewIndex = function(tbl, key, newValue)
 	local base = getmetatable(tbl)
-	trace('Triggered __newindex from ' .. rawget(base, '_id'))
-
-	if type(newValue) == 'function' then
+	if typeOf(newValue) == 'function' then
 		local meths = rawget(base, '_methods')
 		meths[key] = newValue
 	else
@@ -43,9 +81,9 @@ end
 
 local classNewIndex = function(tbl, key, newValue)
 	local base = getmetatable(tbl)
-	trace('Triggered _newindex from ' .. rawget(base, '_id'))
+	trace('Triggered __newindex from ' .. rawget(base, '_id'))
 	
-	assert(tbl[key]~=nil, 'Member not found!')
+	assert(tbl[key]~=nil, key .. ' Member not found!')
 	
 	if type(newValue) == 'function' then
 		local meths = rawget(base, '_methods')
@@ -57,7 +95,7 @@ local classNewIndex = function(tbl, key, newValue)
 end
 
 local rootIndex = function (tbl, key)
-	trace('Triggered _index from ' .. rawget(base, '_id'))
+	trace('Triggered _index from ' .. rawget(tbl, '_id'))
 	local meta = getmetatable(tbl)
 	return rawget(meta, key)
 end
@@ -66,13 +104,13 @@ local rootNewIndex = function(tbl, key, newValue)
 	trace('Triggered __newindex from ' .. rawget(base, '_id'))
 end
 
-local clone = function(self)
+clone = function(self)
 	local newClone = {}
 	for key, itm in pairs(self) do
-		if type(itm) == 'table' then
-			item.clone = clone
+		if typeOf(itm) == 'table' then
+			itm.clone = clone
 			newClone[key] = itm:clone()
-			item.clone = nil
+			itm.clone = nil
 			newClone[key].clone = nil
 		else
 			newClone[key] = itm
@@ -83,7 +121,7 @@ end
 
 local classCall = function(tbl)
 	local clsBase 	= getmetatable(tbl)
-	local clsid 		= tbl._id
+	local clsid 		= clsBase._id
 	local data      = rawget(clsBase, '_data')
 	local methods   = rawget(clsBase, '_methods')
 	
@@ -135,7 +173,13 @@ classRoot.__call = function(tbl, key)
 	
 	local root = { 
 			_id = 'root'
+		, json = require('json')
 		, __index = rootIndex
+		, typeOf = function(self)
+			return clsid
+		end
+		, encode = encode
+		, decode = decode
 	}
 			
 	local proxy = {
@@ -144,7 +188,7 @@ classRoot.__call = function(tbl, key)
 	
 	setmetatable(base, root)
 	
-	return setmetatable(proxy, base)
+	_G[clsid] = setmetatable(proxy, base)
 end
 
 setmetatable(class, classRoot)

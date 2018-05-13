@@ -32,9 +32,10 @@ end
 
 local baseNewIndex = function(tbl, key, newValue)
 	local base = getmetatable(tbl)
+	
 	trace('Triggered __newindex from ' .. rawget(base, '_id'))
 
-	if type(newValue) == 'function' then
+	if typeOf(newValue) == 'function' then
 		local meths = rawget(base, '_methods')
 		meths[key] = newValue
 	else

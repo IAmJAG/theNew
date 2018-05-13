@@ -1,22 +1,22 @@
 --=============== Status Bar ===============--
-statusBar = class('rectangle')
+class('statusBar')
 
 if SCR == nil then
 	SCR = getAppUsableScreenSize()
 end
 
-statusBar.x 			 			= 0
-statusBar.y 			 			= SCR:getY() - 60
-statusBar.w 			 			= SCR:getX()
-statusBar.h 			 			= SCR:getY()
+statusbar.x 			 			= 0
+statusbar.y 			 			= SCR:getY() - 60
+statusbar.w 			 			= SCR:getX()
+statusbar.h 			 			= SCR:getY()
 
-statusBar.borderColor 	= 0xFF464742
-statusBar.background		= 0xFF464742
-statusBar.textColor			= 0xFF464742
-statusBar.bar			 			= Region(statusBar.x, statusBar.y, statusBar.w, statusBar.h)
-statusBar.sections			= {}
+statusbar.borderColor 	= 0xFF464742
+statusbar.background		= 0xFF464742
+statusbar.textColor			= 0xFF464742
+statusbar.bar			 			= Region(statusbar.x, statusbar.y, statusbar.w, statusbar.h)
+statusbar.sections			= {}
 
-function statusBar:show()
+function statusbar:show()
 	setHighlightTextStyle(self.background, self.textColor, 16)
 	setHighlightStyle(self.borderColor, false)
 	self.bar:highlight('')
@@ -25,19 +25,20 @@ function statusBar:show()
 	end
 end
 
-function statusBar:hide()
+function statusbar:hide()
 	for i, sec in pairs(self.sections) do
 		sec:hide()
 	end
 	self.bar:highlightOff()
 end
 
-function statusBar:addSection(sctnClss, name, w, h)
-	x 	= x or self.x+2
-	y 	= y or self.y+2
+function statusbar:addSection(sctnClss, name, w, h)
+	x 	= self.x+2
+	y 	= self.y+2
 	w 	= w or self.w-2
 	h 	= h or self.h-2
-	local newSection = sctnClss(name)
+	
+	local newSection = sctnClss()
 	newSection.w = w
 	newSection.h = h
 	self.sections[#self.sections+1] = newSection

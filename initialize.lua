@@ -6,28 +6,19 @@ package.path = package.path .. ";" .. scrptPth .. "utilities/?.lua"
 package.path = package.path .. ";" .. scrptPth .. "utilities/statusbar/?.lua"
 
 require 'logger'
-require 'class'
-
-print('testing print')
-
 SCR = getAppUsableScreenSize()
 _G:InitializeLogger(scrptPth .. 'logs/' .. string.format("%s.log", os.date("%Y%m%d")))
 
-local ba = class('stat')
+require 'class'
+require 'statusBar'
+require 'textSection'
+require 'gameutility'
 
-ba.stat = 'This is a status text'
+statBar = statusbar()
+local textStat = statBar:addSection(textsection)
 
-print(ba.stat)
+statBar:show()
 
-
--- _G['statusBar'] = require('statusBar').create(0, SCR:getY()-60, SCR:getX(), 60)
-
--- STATUS = statusBar:addSection('textSectionBar')
--- statusBar:show()
--- function status(msg)
-	-- STATUS:Status(msg)
--- end
-
--- status('Status bar setup done!')
-
-wait(5)
+status = function(msg)
+	textStat:Status(msg)
+end
