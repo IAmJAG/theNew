@@ -610,9 +610,6 @@ function OBJDEF:newObject(tbl)
    return setmetatable(tbl or {}, isObject)
 end
 
-
-
-
 local function getnum(op)
    return type(op) == 'number' and op or op.N
 end
@@ -1382,9 +1379,6 @@ local function encode_value(self, value, parents, etc, options, indent, for_key)
    --
    if value == nil or (not for_key and options and options.null and value == options.null) then
       return 'null'
-			
-		
-
    elseif type(value) == 'string' then
       return json_string_literal(value, options)
 
