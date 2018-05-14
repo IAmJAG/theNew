@@ -1,46 +1,90 @@
 --======== CLASS ==========--
 
+
 local encode = function(self)	
 	local base = getmetatable(self)
 	local _data = rawget(base, '_data')
 	_data.type = self:typeOf()
-	return self.json:encode_pretty(_data)
+	return self.json:encode(_data)
 end
 
-local toJAGClass = function(self)
-	local cls = _G[self.type]()
-	local base = getmetatable(cls)
-	self.type = nil
+local saveJSON = function(self, filePath)
+	local strJSON = self:encode()
+	local fp = io.open(filePath, "w")
+	fp:write(strJSON)
+	fp:close()
+end
+
+indent = function(spaces)
+	local spcs = ""
+	for i = 1, spaces ,1 do 
+		spcs = spcs .. " "
+	end
+	return spcs
+end
+
+toJAGClass = function(self, pKey, indx)
+	local obj = self or nil
+	local indts = indent(indx * 4)
 	
-	for key, itm in pairs(self) do
-		print(key)
-		if type(self[key]) == 'table' then
-			if self[key]['type'] ~= nil then
-				self[key] = toJAGClass(self[key])
-			end
+	if type(obj) == 'table' then
+		--print(indts .. pKey .. ": ")
+		for key, itm in pairs(obj) do
+			obj[key] = toJAGClass(itm, key, indx + 1)
 		end
+			
+		if obj['type'] ~= nil then
+			local cls = _G[obj.type]()
+			local base = getmetatable(cls)
+			rawset(base, '_data', obj)	
+			--print(indts .. "xxxxxx")
+			return cls			
+		end
+	else
+		local typ = type(obj)
+		
+		if typ == 'nil' then
+			obj = false
+		end		
+		
+--		print("	Type: " .. type(obj) .. " 	key: " .. pKey)
+--		print(indts .. pKey .. ": " .. tostring(obj))
 	end
 	
-	rawset(base, '_data', self)	
-	return cls 
+	return obj
 end
 
 local decode = function(self, strJSON)	
 	local _data = self.json:decode(strJSON)	
 	assert(_data.type == self.typeOf(), 'Invalid type!')
-	_data.type = nil
 	
 	for key, itm in pairs(_data) do
-
-		if type(_data[key]) == 'table' then
-			if _data[key]['type'] ~= nil then
-				_data[key] = toJAGClass(_data[key])
-			end
-		end
+		_data[key] = toJAGClass(itm, key, 0)
 	end
 	
 	local base = getmetatable(self)
 	rawset(base, '_data', _data)
+end
+
+local readJSON = function(self, filePath)
+	local strJSON = readFile(filePath)
+	local obj = self:decode(strJSON)
+	return obj
+end
+
+function fileExist(file)
+  local f = io.open(file, "rb")
+  if f then f:close() end
+  return f ~= nil
+end
+
+function readFile(file)
+  if not fileExist(file) then return '' end
+  lines = ''
+  for line in io.lines(file) do 
+    lines = lines .. line .. '\n' 
+  end
+  return lines
 end
 
 local baseIndex =  function(tbl, key)
@@ -180,6 +224,8 @@ classRoot.__call = function(tbl, key)
 		end
 		, encode = encode
 		, decode = decode
+		, saveJSON = saveJSON
+		, readJSON = readJSON
 	}
 			
 	local proxy = {

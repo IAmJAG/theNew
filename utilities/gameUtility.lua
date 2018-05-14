@@ -16,6 +16,10 @@ setImagePath = function(path)
 	currentImagePath = path
 end
 
+getImagePath = function()
+	return currentImagePath .. "/"
+end
+
 typeOf = function(self)
 	local typ = __typeOf(self)
 	if typ == 'table'  then

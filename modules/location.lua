@@ -5,6 +5,14 @@ location.x = 0
 location.y = 0
 location.isIndexed = false
 
+function location:encode()
+	local base = getmetatable(self)
+	local _data = rawget(base, '_data')
+	_data.isIndexed = false	
+	_data.type = self:typeOf()
+	return self.json:encode(_data)
+end
+
 function location:getLocation()
 	if not self.isIndexed then
 		self.x = tonumber(self.x)
