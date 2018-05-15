@@ -77,8 +77,7 @@ function gamemode:getEntryPoint()
 	local k = "<empty>"
 	for key, pat in pairs(self.patterns.items) do
 		if pat['type'] ~= nil then
-			if pat.type == 'pattern' then
-				print(getmetatable(pat)==nil)
+			if pat.type == 'pattern' then		
 				if pat:exists() == true then
 					k = key
 					break

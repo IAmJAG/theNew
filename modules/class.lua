@@ -1,55 +1,4 @@
 --======== CLASS ==========--
-copy = function(self)
-	local newCopy = {}
-	for key, itm in pairs(self) do
-		if typeOf(itm) == 'table' then
-			itm.copy = copy
-			newCopy[key] = itm:copy()
-			itm.copy = nil
-			newCopy[key].copy = nil
-		else
-			newCopy[key] = itm
-		end
-	end	
-	return newCopy
-end
-
-indent = function(spaces)
-	local spcs = ""
-	for i = 1, spaces ,1 do 
-		spcs = spcs .. " "
-	end
-	return spcs
-end
-
----------------------------- convert To jAG Class ------------------------------
-toJAGClass = function(self, pKey, indx)
-	local obj = self or nil
-	local indts = indent(indx * 4)
-	
-	if type(obj) == 'table' then
-		for key, itm in pairs(obj) do
-			obj[key] = toJAGClass(itm, key, indx + 1)
-		end
-			
-		if obj['type'] ~= nil then
-			local cls = _G[obj.type]()
-			local base = getmetatable(cls)
-			rawset(base, '_data', obj)	
-			--print(indts .. "xxxxxx")
-			return cls			
-		end
-	else
-		local typ = type(obj)
-		
-		if typ == 'nil' then
-			obj = false
-		end
-	end
-	
-	return obj
-end
-
 
 local encode = function(self)	
 	local base = getmetatable(self)
@@ -125,7 +74,7 @@ end
 local baseNewIndex = function(tbl, key, newValue)
 	local base = getmetatable(tbl)
 	
-	if typeOf(newValue) == 'function' then
+	if __typeOf(newValue) == 'function' then
 		local meths = rawget(base, '_methods')
 		meths[key] = newValue
 	else
@@ -138,7 +87,7 @@ local classNewIndex = function(tbl, key, newValue)
 	assert(tbl[key]~=nil, key .. ' Member not found!')
 	
 	local base = getmetatable(tbl)	
-	if typeOf(newValue) == 'function' then
+	if __typeOf(newValue) == 'function' then
 		local meths = rawget(base, '_methods')
 		meths[key] = newValue
 	else
