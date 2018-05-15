@@ -16,10 +16,7 @@ status('Read json file')
 mod:readJSON(scrptPth .. 'data/mod1.json')
 
 
-mod:setImagePath()	
-
 status(getImagePath())
-wait(2)
 
 status('Get entry point')
 local key = mod:getEntryPoint()

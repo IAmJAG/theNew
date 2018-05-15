@@ -7,50 +7,6 @@ if trace == nil then
 	end
 end
 
----------------------------- convert To jAG Class ------------------------------
-toJAGClass = function(self, pKey, indx)
-	local obj = self or nil
-	local indts = indent(indx * 4)
-	
-	if type(obj) == 'table' then
-		for key, itm in pairs(obj) do
-			obj[key] = toJAGClass(itm, key, indx + 1)
-		end
-			
-		if obj['type'] ~= nil then
-			local cls = _G[obj.type]()
-			local base = getmetatable(cls)
-			rawset(base, '_data', obj)	
-			--print(indts .. "xxxxxx")
-			return cls			
-		end
-	else
-		local typ = type(obj)
-		
-		if typ == 'nil' then
-			obj = false
-		end
-	end
-	
-	return obj
-end
-
---------------------------------- Image Path -----------------------------------
-copy = function(self)
-	local newCopy = {}
-	for key, itm in pairs(self) do
-		if __typeOf(itm) == 'table' then
-			itm.copy = copy
-			newCopy[key] = itm:copy()
-			itm.copy = nil
-			newCopy[key].copy = nil
-		else
-			newCopy[key] = itm
-		end
-	end	
-	return newCopy
-end
-
 --------------------------------- Image Path------------------------------------
 __setImagePath = setImagePath
 
