@@ -8,16 +8,7 @@ task.timeOut  = false
 task.taskID 	= false
 
 function task:execute(agent)
-	local result = agent[self.command](agent, self.pslr, self.timeOut)
-	return self[result]
-end
-
-function task:GTaskCount()
-	local cnt = 0
-	for key in _G['TASKS'] do
-		cnt = cnt + 1
-	end
-	return cnt
+	return self[agent[self.command](agent, self)]
 end
 
 function task:initialize(cmd, param, to, tid, onFail, onSucces)
@@ -28,16 +19,16 @@ function task:initialize(cmd, param, to, tid, onFail, onSucces)
 		if _G['TASKS'] == nil then
 			_G['TASKS'] = {}
 		end
-		self.taskID = tid or self:GTaskCount()
+		self.taskID = tid or #TASKS + 1
 		TASKS[self.taskID] = self
 	end
 	
 	if onFail then
-		self:setFail(onFail)
+		self:setRight(onFail)
 	end
 	
 	if onSucces then
-		self:setSuccess(onSucces)
+		self:setLeft(onSucces)
 	end
 end
 

@@ -6,16 +6,12 @@ dictionary.items		= {}
 function dictionary:addItem(itm, key)
 	self.itemType =  self.itemType or typeOf(itm) 
 	assert(typeOf(itm) == self.itemType, 'Invalid type!')
-	key = key or self:count()+1
+	key = key or #self.items+1
 	self.items[key] = itm
 end
 
 function dictionary:count()
-	local cnt = 0
-	for key, itm in pairs(self.items) do
-		cnt = cnt + 1
-	end
-	return cnt
+	return #self.items
 end
 
 function dictionary:getItem(key)

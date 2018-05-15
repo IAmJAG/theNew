@@ -41,6 +41,6 @@ function textsection:Status(txt)
 	self.bar['X'] = bar
 	
 	self.bar['X']:highlight(txt)
-	--wait(0.06)
+	wait(0.06)
 	self.bar['Y']:highlightOff()
 end

@@ -7,29 +7,6 @@ gamemode.tasks					= dictionary()
 gamemode.patterns				= dictionary()
 gamemode.dateCompleted	= false
 gamemode.timeResume 		= GU:ms()
-gamemode.minimizePath		= ""
-gamemode.ImagePath			= ""
-
-function gamemode:isMinimized()
-	local ret = true 
-	for key, pat in pairs(self.patterns.items) do
-		if not pat.minimized then
-			ret = false
-		end
-		pat:setMinimizedPath(self.minimizePath)
-	end	
-	return ret
-end
-
-function gamemode:setImagePath()
-	assert(self.minimizePath ~= "", "Path not specified!")
-	
-	if self:isMinimized() then
-		setImagePath(self.minimizePath)
-	else
-		setImagePath(self.ImagePath)
-	end
-end
 	
 function gamemode:suspend(timeout)
 	self.timeResume = timeout
@@ -56,11 +33,11 @@ function gamemode:initialize(name)
 end
 
 function gamemode:addTask(key, tsk, entryImage)
-	self.tasks:addItem(tsk, key)	
+	self.tasks:addItem(key, tsk)	
 	if entryImage ~= nil then
 		local pat = pattern()
 		pat.fileName = entryImage
-		self.patterns:addItem(pat, key)
+		self.patterns:addItem(key, pat)
 	end
 end
 
@@ -70,16 +47,24 @@ function gamemode:removeTask(key)
 end
 
 function gamemode:getTask(key)
-	return self.tasks:getItem(key)
+	return self.tasks[key]
 end
 
 function gamemode:getEntryPoint()
+<<<<<<< HEAD
 	local k = "<empty>"
 	for key, pat in pairs(self.patterns.items) do
 		if pat['type'] ~= nil then
 			if pat.type == 'pattern' then
 				print(getmetatable(pat)==nil)
 				if pat:exists() == true then
+=======
+	local k = nil
+	for key, pat in pairs(self.patterns) do
+		if pat['Type'] ~= nil then
+			if pat.Type == 'pattern' then
+				if pat:exists() then
+>>>>>>> parent of 743f754... 20180514 minimizing
 					k = key
 					break
 				end

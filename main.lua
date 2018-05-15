@@ -2,15 +2,10 @@ scrptPth = scriptPath()
 package.path = package.path .. ";" .. scrptPth .. "?.lua"
 
 require 'initialize'
-require 'dictionary'
-require 'pattern'	
-require 'task'
-require 'gamemode'
-require 'region'
-require 'profile'
 
 setImagePath(scrptPth .. 'images')
 
+<<<<<<< HEAD
 local mod = gamemode()
 status('Read json file')
 mod:readJSON(scrptPth .. 'data/mod1.json')
@@ -19,21 +14,13 @@ mod:readJSON(scrptPth .. 'data/mod1.json')
 status(getImagePath())
 
 status('Get entry point')
+=======
+>>>>>>> parent of 743f754... 20180514 minimizing
 local key = mod:getEntryPoint()
-status('Get first task; entry point is ' .. key )
-
 local task = mod:getTask(key)
-
-local mff = profile()
-
 while task ~= nil do
-	status('Executing task ID ' .. task.taskID)
-	local tid  = task:execute(mff)
-	task = mod:getTask(tid)
+	task = mod:getTask(task:execute(profile))
 end
-
-mod:saveJSON(scrptPth .. 'data/mod1.json')
-print('end')
 
 
 -- local tsk1 = otk.create('wait')

@@ -1413,9 +1413,11 @@ local function encode_value(self, value, parents, etc, options, indent, for_key)
 
    elseif type(value) ~= 'table' then
       if self.unsupportedTypeEncoder then
+				print('aaaaa')
          local user_value, user_error = self:unsupportedTypeEncoder(value, parents, etc, options, indent, for_key)
          -- If the user's handler returns a string, use that. If it returns nil plus an error message, bail with that.
          -- If only nil returned, fall through to the default error handler.
+				 print(user_value)
          if type(user_value) == 'string' then
             return user_value
          elseif user_value ~= nil then
@@ -1485,16 +1487,13 @@ local function encode_value(self, value, parents, etc, options, indent, for_key)
 
             local KEYS = { }
             local max_key_length = 0
-						
             for _, key in ipairs(object_keys) do
                local encoded = encode_value(self, tostring(key), parents, etc, options, indent, true)
-							 
                if options.align_keys then
                   max_key_length = math.max(max_key_length, #encoded)
                end
                table.insert(KEYS, encoded)
             end
-						
             local key_indent = indent .. tostring(options.indent or "")
             local subtable_indent = key_indent .. string.rep(" ", max_key_length) .. (options.align_keys and "  " or "")
             local FORMAT = "%s%" .. string.format("%d", max_key_length) .. "s: %s"

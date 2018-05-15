@@ -15,6 +15,7 @@ setImagePath = function(path)
 	currentImagePath = path
 end
 
+<<<<<<< HEAD
 getImagePath = function()
 	return currentImagePath .. "/"
 end
@@ -22,6 +23,8 @@ end
 ------------------------------------ Type --------------------------------------
 __typeOf = typeOf
 
+=======
+>>>>>>> parent of 743f754... 20180514 minimizing
 typeOf = function(self)
 	local typ = __typeOf(self)
 	if typ == 'table'  then
