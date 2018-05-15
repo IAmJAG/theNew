@@ -9,6 +9,8 @@ require 'logger'
 SCR = getAppUsableScreenSize()
 _G:InitializeLogger(scrptPth .. 'logs/' .. string.format("%s.log", os.date("%Y%m%d")))
 
+settrace(OFF)
+
 require 'class'
 require 'statusBar'
 require 'textSection'

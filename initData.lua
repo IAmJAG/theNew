@@ -33,12 +33,6 @@ pat.fileName = 'enter.pat.png'
 tsk:initialize('click', pat, 500, pat.fileName, nil, 'co-op.pat.png')
 mod:addTask(pat.fileName, tsk, pat.fileName)
 
-
-
-
-
-
-
 -- dict = dictionary()
 
 -- dict:addItem(1, tsk)

@@ -237,6 +237,7 @@ function gameutility:scanDirectory(dir, ext)
   os.execute(command)
   local lines = {}
   local i = 1
+  
   for line in io.lines(listFile) do
 		lines[#lines + 1] = line
   end

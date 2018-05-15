@@ -2,13 +2,14 @@ class('gamemode')
 
 require 'dictionary'
 
-gamemode.Name						= name or ''
-gamemode.tasks					= dictionary()
-gamemode.patterns				= dictionary()
+gamemode.Name			= name or ''
+gamemode.tasks			= dictionary()
+gamemode.patterns		= dictionary()
 gamemode.dateCompleted	= false
-gamemode.timeResume 		= GU:ms()
-gamemode.minimizePath		= ""
-gamemode.ImagePath			= ""
+gamemode.timeResume 	= GU:ms()
+gamemode.minimizePath	= ""
+gamemode.ImagePath		= ""
+gamemode.useMiniImages 	= true
 
 function gamemode:isMinimized()
 	local ret = true 

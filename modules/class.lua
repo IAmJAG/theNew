@@ -28,17 +28,35 @@ toJAGClass = function(self, pKey, indx)
 	local indts = indent(indx * 4)
 	
 	if type(obj) == 'table' then
-		--print(indts .. pKey .. ": ")
+		local cls  = nil
+		local base = nil
+		local oldData = nil
+		
+		if obj['type'] ~= nil then
+			cls  = _G[obj.type]()
+			base = getmetatable(cls)
+			oldData = rawget(base, '_data')
+		end
+		
 		for key, itm in pairs(obj) do
-			obj[key] = toJAGClass(itm, key, indx + 1)
+			if obj['type'] ~= nil then
+				if oldData[key] == nil then
+					obj[key] = nil
+				else
+					obj[key] = toJAGClass(itm, key, indx + 1)
+					oldData[key] = nil
+				end
+			else
+				obj[key] = toJAGClass(itm, key, indx + 1)
+			end
 		end
 			
 		if obj['type'] ~= nil then
-			local cls = _G[obj.type]()
-			local base = getmetatable(cls)
-			rawset(base, '_data', obj)	
-			--print(indts .. "xxxxxx")
-			return cls			
+			for key, itm in pairs(oldData) do
+				obj[key] = itm
+			end
+			rawset(base, '_data', obj)
+			obj = cls
 		end
 	else
 		local typ = type(obj)
@@ -58,11 +76,23 @@ local decode = function(self, strJSON)
 	local _data = self.json:decode(strJSON)	
 	assert(_data.type == self.typeOf(), 'Invalid type!')
 	
+	local base = getmetatable(self)
+	oldData = rawget(base, '_data')
+	
 	for key, itm in pairs(_data) do
-		_data[key] = toJAGClass(itm, key, 0)
+		if oldData[key] == nil then
+			_data[key] = nil
+		else
+			_data[key] = toJAGClass(itm, key, 0)
+			oldData[key] = nil
+		end
 	end
 	
-	local base = getmetatable(self)
+	for key, itm in pairs(oldData) do
+		_data[key] = itm
+	end
+	
+	_data.type = nil
 	rawset(base, '_data', _data)
 end
 

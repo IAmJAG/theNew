@@ -44,7 +44,7 @@ end
 function pattern:getPattern()
 	if not self.isIndexed then
 		self:GIndex()
-		self:minimize()
+		--self:minimize()
 	end
 	return PATTERNS[self.fileName]
 end
