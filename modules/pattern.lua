@@ -2,94 +2,122 @@ class('pattern')
 
 pattern.fileName 	= ''
 pattern.isIndexed = false
-pattern.regions		= {}
+pattern.regions		= dictionary()
+pattern.minimized	= false
+pattern.minimizePath = ""
+
+function pattern:minimize()	
+	local curImgPath = getImagePath()
+	setImagePath(self.minimizePath)
+	
+	local rgn = self:getRegion()
+	
+	if rgn ~= nil then
+		if rgn.w > 20 then
+			rgn.w = 20
+			rgn.x = rgn.x + ((rgn.w - 20)/2)
+		end
+		
+		if rgn.h > 20 then
+			rgn.h = 20
+			rgn.y = rgn.y + ((rgn.y - 20)/2)
+		end
+		
+		rgn:save(self.fileName)
+	end
+	setImagePath(curImgPath)
+	self.minimized = true
+end
+
+function pattern:setMinimizedPath(path)
+	self.minimizePath = path
+end
+
+function pattern:encode()
+	local base = getmetatable(self)
+	local _data = rawget(base, '_data')
+	_data.isIndexed = false	
+	_data.type = self:typeOf()
+	return self.json:encode(_data)
+end
 
 function pattern:getPattern()
+	if not self.isIndexed then
+		self:GIndex()
+		self:minimize()
+	end
+	return PATTERNS[self.fileName]
+end
+
+function pattern:GIndex()
 	assert(self.fileName ~= '', 'Pattern is not initialized')
 	
 	if _G['PATTERNS'] == nil then
 		_G['PATTERNS'] = {}
 	end
 	
-	if not self.isIndexed then
-		PATTERNS[self.fileName] = Pattern(self.fileName)
-		self.isIndexed = true	
-	end
-	
-	return PATTERNS[self.fileName]
+	PATTERNS[self.fileName] = Pattern(self.fileName)
+	self.isIndexed = true	
 end
 
 function pattern:click()
-	local rgn 	= region()
-	local pat 	= self:getPattern()
-	rgn:click(pat)
-	self:addRegion()
+	local pat 	= self:getPattern()	
+	--print(pat)
+	local rgn 	= self:getRegion()
+	if rgn == nil then
+		rgn = region()
+		rgn:click(pat)
+		self:addRegion(rgn)
+	else
+		rgn:click(pat)
+	end		
 end
 
 function pattern:getRegion()
-	local rgn = nil
-	for w, widths in pairs(self.regions) do
-		for h, heights in pairs(widths) do
-			for x, xs in pairs(heights) do
-				for y, rgn in pairs(xs) do
-					if rgn:exists(self.fileName) then 
-						break	
-					end
-				end
-			end
+	local xrgn = nil
+	for mtchStr, rgn in pairs(self.regions.items) do
+		if rgn:exists(self.fileName) then 
+			xrgn = rgn
+			break	
 		end
-	end
-	
-	if not rgn then
-		if region():exists(self.fileName) then
-			rgn = self:addRegion()
-		end
-	end
-	
-	return rgn
+	end	
+	return xrgn
 end
 
 function pattern:exists()
-	local exsts = false 
-	
-	for w, widths in pairs(self.regions) do
-		for h, heights in pairs(widths) do
-			for x, xs in pairs(heights) do
-				for y, rgn in pairs(xs) do
-					exsts = rgn:exists(self.fileName)
-					if exsts then break	end
-				end
-			end
-		end
-	end
+	local rgn = pattern:getRegion()
+	local exsts = (rgn ~= nil)
 	
 	if not exsts then
-		local rgn = region()
-		local exsts 	= rgn:exists(self.fileName)
-		self:addRegion()
+		rgn 		= region()
+		exsts 	= rgn:exists(self.fileName) ~= nil
+		if exsts then
+			self:addRegion(rgn)
+		end
 	end
-	
 	return exsts
 end
 
-function pattern:addRegion()
-	local match = rgn:getLastMatch()
+function pattern:addRegion(rgn)
+	local xmatch = rgn:getLastMatch()
+	local match = {x = xmatch:getX(), y = xmatch:getY(), w = xmatch:getW(), h = xmatch:getH()}
+	local itm = nil
 	
-	if self.regions[match.w] == nil then
-		self.regions[match.w] = {}
+	if match ~= nil then	
+		local mtchStr = tostring(match.w) .. "|" .. tostring(match.h) .. "|" .. tostring(match.x) .. "|" .. tostring(match.y)	
+		
+		itm = self.regions:getItem(mtchStr)
+		
+		if itm == nil then
+			local rgn = region()			
+			rgn.x = match.x
+			rgn.y = match.y
+			rgn.w = match.w
+			rgn.h = match.h
+			itm = self.regions:addItem(rgn, mtchStr)
+			rgn:GIndex()
+		end	
 	end
 	
-	if self.regions[match.w][match.h] == nil then
-		self.regions[match.w][match.h] = {}
-	end		
-	
-	if self.regions[match.w][match.h][match.x] == nil then
-		self.regions[match.w][match.h][match.x] = {}
-	end		
-	
-	if self.regions[match.w][match.h][match.x][match.y] == nil then
-		self.regions[match.w][match.h][match.x][match.y] = Region(match.x, match.y, match.w, match.h)
-	end
-	
-	return self.regions[match.w][match.h][match.x][match.y]
+	return itm
 end
