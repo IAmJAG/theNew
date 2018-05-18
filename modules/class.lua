@@ -1,6 +1,5 @@
 --======== CLASS ==========--
 
-
 local encode = function(self)	
 	local base = getmetatable(self)
 	local _data = rawget(base, '_data')
@@ -72,28 +71,80 @@ toJAGClass = function(self, pKey, indx)
 	return obj
 end
 
+local objToJAGClass = function(self)
+	local typ = type(self)
+	local newData = nil
+	
+	if typ == 'table' then
+		local dumRet
+		if self['type'] == nil then
+			for key, itm in pairs(self) do
+				itm.objToJAGClass = objToJAGClass
+				dumRet = itm:objToJAGClass()
+				dumRet.objToJAGClass = nil				
+				self[key] = dumRet
+			end
+			newData = self
+		else
+			local cls  		= _G[self.type]()
+			local base 		= getmetatable(cls)
+			local oldData = rawget(base, '_data')
+			
+			for key, itm in pairs(self) do				
+				if oldData[key] == nil then
+					self[key] = nil
+				else
+					itm.objToJAGClass = objToJAGClass
+					dumRet = itm:objToJAGClass()
+					dumRet.objToJAGClass = nil				
+					self[key] = dumRet				
+					oldData[key] = nil
+				end				
+			end
+			
+			for key, itm in pairs(oldData) do
+				self[key] = itm
+			end
+			
+			self.type = nil
+			rawset(base, '_data', self)			
+			newData = cls
+		end
+	end	
+	
+	return newData
+end
+
 local decode = function(self, strJSON)	
 	local _data = self.json:decode(strJSON)	
 	assert(_data.type == self.typeOf(), 'Invalid type!')
 	
+	_data.objToJAGClass = objToJAGClass
+	local newData = _data:objToJAGClass()
+	_data.objToJAGClass = nil
+	newData.objToJAGClass = nil
+	
 	local base = getmetatable(self)
-	oldData = rawget(base, '_data')
+	rawset(base, '_data', newData)
 	
-	for key, itm in pairs(_data) do
-		if oldData[key] == nil then
-			_data[key] = nil
-		else
-			_data[key] = toJAGClass(itm, key, 0)
-			oldData[key] = nil
-		end
-	end
+	-- local base = getmetatable(self)
+	-- oldData = rawget(base, '_data')
 	
-	for key, itm in pairs(oldData) do
-		_data[key] = itm
-	end
+	-- for key, itm in pairs(_data) do
+		-- if oldData[key] == nil then
+			-- _data[key] = nil
+		-- else
+			-- _data[key] = toJAGClass(itm, key, 0)
+			-- oldData[key] = nil
+		-- end
+	-- end
 	
-	_data.type = nil
-	rawset(base, '_data', _data)
+	-- for key, itm in pairs(oldData) do
+		-- _data[key] = itm
+	-- end
+	
+	-- _data.type = nil
+	-- rawset(base, '_data', _data)
 end
 
 local readJSON = function(self, filePath)

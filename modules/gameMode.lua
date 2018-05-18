@@ -2,25 +2,15 @@ class('gamemode')
 
 require 'dictionary'
 
-gamemode.Name			= name or ''
-gamemode.tasks			= dictionary()
-gamemode.patterns		= dictionary()
+gamemode.Name						= name or ''
+gamemode.tasks					= dictionary()
+gamemode.patterns				= dictionary()
 gamemode.dateCompleted	= false
-gamemode.timeResume 	= GU:ms()
-gamemode.minimizePath	= ""
-gamemode.ImagePath		= ""
+gamemode.timeResume 		= GU:ms()
+gamemode.minimizePath		= ""
+gamemode.ImagePath			= ""
 gamemode.useMiniImages 	= true
-
-function gamemode:isMinimized()
-	local ret = true 
-	for key, pat in pairs(self.patterns.items) do
-		if not pat.minimized then
-			ret = false
-		end
-		pat:setMinimizedPath(self.minimizePath)
-	end	
-	return ret
-end
+gamemode.learn					= false
 
 function gamemode:setImagePath()
 	assert(self.minimizePath ~= "", "Path not specified!")
